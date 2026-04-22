@@ -16,8 +16,6 @@ export async function braveSearch(query: string, count = 10): Promise<BraveResul
   url.searchParams.set("q", query);
   url.searchParams.set("count", String(count));
   url.searchParams.set("country", "ALL");
-  url.searchParams.set("search_lang", "he");
-  url.searchParams.set("ui_lang", " en-US");
 
   const res = await fetch(url.toString(), {
     headers: {
