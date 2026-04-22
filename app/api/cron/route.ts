@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
             await webpush.sendNotification(record.subscription, payload);
             notificationsSent++;
             const newIds = newApts.map((a) => a.id);
-            if (newIds.length > 0) await redis.sadd(seenKey, ...newIds);
+            if (newIds.length > 0) await redis.sadd(seenKey, newIds[0], ...newIds.slice(1));
             await redis.expire(seenKey, 60 * 60 * 24 * 14);
           } catch (err: any) {
             if (err.statusCode === 410 || err.statusCode === 404) {
