@@ -10,7 +10,7 @@ export async function gemini(prompt: string, systemPrompt?: string): Promise<str
 
   const body: any = {
     contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.3, maxOutputTokens: 2048, responseMimeType: "application/json" },
+    generationConfig: { temperature: 0.3, maxOutputTokens: 8192, responseMimeType: "application/json" },
   };
   if (systemPrompt) {
     body.systemInstruction = { parts: [{ text: systemPrompt }] };
