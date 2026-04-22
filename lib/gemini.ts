@@ -2,7 +2,7 @@
 // https://aistudio.google.com/app/apikey
 
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
-const MODEL = "gemini-2.0-flash"; // Free, fast, good at Hebrew
+const MODEL = "gemini-2.5-flash-lite"; // Free tier, 1000 requests/day
 
 export async function gemini(prompt: string, systemPrompt?: string): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
