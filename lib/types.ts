@@ -89,8 +89,29 @@ export interface UserSettings {
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
-  theme: "dark",
-  color: "blue",
+  theme: "light",
+  color: "red",
   fontSize: "medium",
   animations: true,
 };
+
+// ─── v2: Agent (Gemini) settings — global ──────────────────────
+export interface AgentSettings {
+  userInstructions: string;   // user-written rules ("אל תראה דירות מעל X")
+  learnedInsights: string;    // accumulated from feedback across all searches
+  updatedAt: number;
+}
+
+export const DEFAULT_AGENT_SETTINGS: AgentSettings = {
+  userInstructions: "",
+  learnedInsights: "",
+  updatedAt: 0,
+};
+
+// ─── v2: Global hidden list ─────────────────────────────────────
+export interface GlobalHiddenEntry {
+  id: string;        // apartment stable id
+  title: string;     // for display in management screen
+  url: string | null;
+  hiddenAt: number;
+}
