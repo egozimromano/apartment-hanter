@@ -20,7 +20,7 @@ const themeInitScript = `
 (function(){
   try {
     var s = localStorage.getItem("apt_settings_v2");
-    var cfg = s ? JSON.parse(s) : { theme: "dark", color: "blue", fontSize: "medium", animations: true };
+    var cfg = s ? JSON.parse(s) : { theme: "light", color: "red", fontSize: "medium", animations: true };
     var mode = cfg.theme;
     var resolved = mode === "auto"
       ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
