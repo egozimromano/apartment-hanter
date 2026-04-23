@@ -11,7 +11,7 @@ interface Props {
 }
 
 // Tags shown as badges on the card summary (not in feedback sheet)
-const BADGE_TAGS: FeedbackTag[] = ["loved_it", "interested", "contacted", "too_expensive", "too_far", "too_small", "bad_area", "seen"];
+const BADGE_TAGS: FeedbackTag[] = ["loved_it", "interested", "contacted", "too_expensive", "too_far", "too_small", "bad_area"];
 
 export default function ApartmentCard({ apt, tags, onFeedback, onHide }: Props) {
   const [open, setOpen] = useState(false);
@@ -24,15 +24,15 @@ export default function ApartmentCard({ apt, tags, onFeedback, onHide }: Props) 
   const scoreColor = apt.match_score >= 80 ? "var(--success-text)" : apt.match_score >= 60 ? "var(--warning)" : "var(--danger-text)";
 
   // Feedback tags shown in the bottom sheet (excluding hidden_permanent which is a separate action)
-  const sheetTags = FEEDBACK_TAGS.filter((t) => t.id !== "hidden_permanent");
+  const sheetTags = FEEDBACK_TAGS.filter((t) => t.id !== "hidden_permanent" && t.id !== "seen");
 
   return (
     <>
       <div style={{
-        background: fav ? "var(--primary-tint)" : rejected ? "var(--surface-2)" : "var(--surface)",
-        border: `1.5px solid ${fav ? "var(--success)" : rejected ? "var(--border)" : open ? "var(--primary)" : "var(--border)"}`,
+        background: seen && !fav ? "var(--surface-2)" : fav ? "var(--primary-tint)" : rejected ? "var(--surface-2)" : "var(--surface)",
+        border: `1.5px solid ${fav ? "var(--success)" : seen && !fav ? "var(--border)" : rejected ? "var(--border)" : open ? "var(--primary)" : "var(--border)"}`,
         borderRadius: 16, overflow: "hidden",
-        opacity: seen && !fav ? 0.6 : rejected ? 0.72 : 1,
+        opacity: rejected ? 0.72 : 1,
         transition: "all var(--anim-fast)",
       }}>
         <div onClick={() => setOpen((v) => !v)} style={{ padding: "14px 16px", cursor: "pointer" }}>
@@ -43,10 +43,10 @@ export default function ApartmentCard({ apt, tags, onFeedback, onHide }: Props) 
                 {apt.rooms && <span style={{ fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}>🛏 {apt.rooms}</span>}
                 {apt.size && <span style={{ fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}>📐 {apt.size}מ״ר</span>}
                 {apt.floor && <span style={{ fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}>🏢 ק׳{apt.floor}</span>}
-                {seen && <span style={{ fontSize: "var(--fs-sm)", color: "var(--text-faint)" }}>👁 ראיתי</span>}
+
                 {apt.match_score > 0 && <span style={{ fontSize: "var(--fs-sm)", fontWeight: 700, color: scoreColor, marginInlineStart: "auto" }}>{apt.match_score}%</span>}
               </div>
-              <div style={{ fontSize: "var(--fs-base)", fontWeight: 600, color: seen ? "var(--text-muted)" : "var(--text)", lineHeight: 1.4, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: "var(--fs-base)", fontWeight: 600, color: seen ? "var(--text-faint)" : "var(--text)", lineHeight: 1.4, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: seen ? "line-through" : "none" }}>
                 {apt.title}
               </div>
               <div style={{ fontSize: "var(--fs-sm)", color: "var(--text-dim)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -87,10 +87,16 @@ export default function ApartmentCard({ apt, tags, onFeedback, onHide }: Props) 
               </div>
             )}
             <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-              {/* Mark as seen */}
+              {/* Mark as seen — standalone toggle */}
               <button onClick={(e) => { e.stopPropagation(); onFeedback(apt.id, "seen"); }}
-                style={{ flex: "1 1 80px", padding: "10px 12px", background: seen ? "var(--surface-2)" : "transparent", border: `1px solid ${seen ? "var(--border-2)" : "var(--border-2)"}`, color: seen ? "var(--text-faint)" : "var(--text-muted)", borderRadius: 10, fontSize: "var(--fs-sm)", fontWeight: 600, cursor: "pointer" }}>
-                {seen ? "✓ ראיתי" : "👁 סמן ראיתי"}
+                style={{ flex: "1 1 80px", padding: "10px 12px",
+                  background: seen ? "var(--border-2)" : "transparent",
+                  border: `1.5px solid ${seen ? "var(--border-2)" : "var(--border-2)"}`,
+                  color: seen ? "var(--text-muted)" : "var(--text-muted)",
+                  borderRadius: 10, fontSize: "var(--fs-sm)", fontWeight: 600, cursor: "pointer",
+                  transition: "all var(--anim-fast)",
+                }}>
+                {seen ? "✓ ראיתי" : "👁 ראיתי?"}
               </button>
               {/* Feedback sheet */}
               <button onClick={(e) => { e.stopPropagation(); setSheet(true); }}
