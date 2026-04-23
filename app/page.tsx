@@ -195,7 +195,122 @@ export default function Home() {
         case "updateFilters":
           updatedFilters = { ...updatedFilters, ...a.filters };
           break;
-< truncated lines 198-313 >
+case "runSearch":
+          shouldRunSearch = true;
+          break;
+        case "hideApartment":
+          hideAptStorage(activeId, a.aptId);
+          break;
+        case "hideMany":
+          hideManyStorage(activeId, a.aptIds);
+          break;
+        case "clearHidden":
+          unhideAll(activeId);
+          break;
+      }
+    }
+
+    if (JSON.stringify(updatedFilters) !== JSON.stringify(activeSearch.filters)) {
+      updateSearch(activeId, { filters: updatedFilters });
+    }
+    refreshSearches();
+
+    if (shouldRunSearch) {
+      await runSearchFor(activeId);
+    }
+  };
+
+  const handleChatSend = async (text: string) => {
+    if (!activeId || !activeSearch) return;
+    setIsChatSending(true);
+
+    const userMsg: ChatMessage = { id: genId(), role: "user", text, timestamp: Date.now() };
+    addChatMessage(activeId, userMsg);
+    refreshSearches();
+
+    try {
+      const visibleApts = (activeSearch.results || [])
+        .filter((a) => !activeSearch.hiddenIds.includes(a.id))
+        .slice(0, 20)
+        .map((a) => ({ id: a.id, title: a.title, price: a.price, rooms: a.rooms, neighborhood: a.neighborhood, city: a.city }));
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userMessage: text,
+          history: activeSearch.chatHistory,
+          currentFilters: activeSearch.filters,
+          currentFreeText: activeSearch.freeText,
+          visibleApartments: visibleApts,
+        }),
+      });
+      const data = await res.json();
+      const assistantMsg: ChatMessage = {
+        id: genId(),
+        role: "assistant",
+        text: data.reply || "בוצע.",
+        timestamp: Date.now(),
+        actions: data.actions || [],
+      };
+      addChatMessage(activeId, assistantMsg);
+      refreshSearches();
+
+      if (Array.isArray(data.actions) && data.actions.length > 0) {
+        await applyChatActions(data.actions);
+      }
+    } catch (e: any) {
+      const errMsg: ChatMessage = { id: genId(), role: "assistant", text: `שגיאה: ${e.message}`, timestamp: Date.now() };
+      addChatMessage(activeId, errMsg);
+      refreshSearches();
+    } finally {
+      setIsChatSending(false);
+    }
+  };
+
+  // ─── Push ──────────────────────────────────────────────────
+  const togglePush = async () => {
+    if (!activeSearch) return;
+    setPushLoading(true);
+    try {
+      if (activeSearch.pushEnabled) {
+        await unsubscribeFromPush();
+        updateSearch(activeSearch.id, { pushEnabled: false });
+      } else {
+        const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        if (!vapidKey) { setError("מפתח VAPID לא מוגדר"); return; }
+        const ok = await subscribeToPush(vapidKey, activeSearch.freeText || activeSearch.name);
+        if (ok) updateSearch(activeSearch.id, { pushEnabled: true });
+        else setError("אישור התראות נדחה או לא נתמך");
+      }
+      refreshSearches();
+    } finally {
+      setPushLoading(false);
+    }
+  };
+
+  // ─── Renders ───────────────────────────────────────────────
+  if (!hydrated) {
+    return <div style={{ minHeight: "100dvh", background: "var(--bg)" }} />;
+  }
+
+  return (
+    <>
+      {view === "list" && (
+        <SearchesList
+          searches={searches}
+          onOpen={openSearch}
+          onEdit={openEdit}
+          onDelete={handleDelete}
+          onNew={openNew}
+          onSettings={() => setShowSettings(true)}
+        />
+      )}
+
+      {view === "new" && (
+        <SearchForm
+          onSave={handleSaveNew}
+          onCancel={() => setView(activeId ? "search" : "list")}
         />
       )}
 
