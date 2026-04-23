@@ -6,15 +6,17 @@ export const FEEDBACK_TAGS: {
   emoji: string;
   color: string;
 }[] = [
-  { id: "loved_it",    label: "אהבתי!",          emoji: "❤️",  color: "#16a34a" },
-  { id: "interested",  label: "מעניין",           emoji: "👀",  color: "#2563eb" },
-  { id: "contacted",   label: "פניתי",            emoji: "📞",  color: "#059669" },
-  { id: "too_expensive",label: "יקר מדי",         emoji: "💸",  color: "#dc2626" },
-  { id: "too_far",     label: "רחוק מדי",         emoji: "📍",  color: "#ea580c" },
-  { id: "too_small",   label: "קטן מדי",          emoji: "📐",  color: "#d97706" },
-  { id: "bad_area",    label: "שכונה לא טובה",    emoji: "🏚️", color: "#7c3aed" },
-  { id: "no_parking",  label: "אין חניה",         emoji: "🚗",  color: "#0369a1" },
-  { id: "no_elevator", label: "אין מעלית",        emoji: "🛗",  color: "#0891b2" },
+  { id: "loved_it",        label: "אהבתי!",           emoji: "❤️",  color: "#16a34a" },
+  { id: "interested",      label: "מעניין",            emoji: "👀",  color: "#2563eb" },
+  { id: "contacted",       label: "פניתי",             emoji: "📞",  color: "#059669" },
+  { id: "too_expensive",   label: "יקר מדי",           emoji: "💸",  color: "#dc2626" },
+  { id: "too_far",         label: "רחוק מדי",          emoji: "📍",  color: "#ea580c" },
+  { id: "too_small",       label: "קטן מדי",           emoji: "📐",  color: "#d97706" },
+  { id: "bad_area",        label: "שכונה לא טובה",     emoji: "🏚️", color: "#7c3aed" },
+  { id: "no_parking",      label: "אין חניה",          emoji: "🚗",  color: "#0369a1" },
+  { id: "no_elevator",     label: "אין מעלית",         emoji: "🛗",  color: "#0891b2" },
+  { id: "seen",            label: "ראיתי",             emoji: "👁",  color: "#64748b" },
+  { id: "hidden_permanent",label: "לא מעניין אותי",    emoji: "🚫",  color: "#dc2626" },
 ];
 
 export const SOURCE_META: Record<string, { label: string; bg: string; color: string }> = {
