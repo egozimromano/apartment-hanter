@@ -393,8 +393,8 @@ function SearchView(p: SearchViewProps) {
       const aSeen = seenIds.has(a.id) ? 1 : 0;
       const bSeen = seenIds.has(b.id) ? 1 : 0;
       return aSeen - bSeen;
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search.results, search.hiddenIds]);
     });
 
