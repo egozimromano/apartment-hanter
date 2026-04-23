@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   SavedSearch, UserSettings, DEFAULT_SETTINGS,
   ScoredApartment, FeedbackTag, ChatMessage, ChatAction, StructuredFilters,
@@ -382,12 +382,20 @@ interface SearchViewProps {
 function SearchView(p: SearchViewProps) {
   const { search, isSearching, error, pushLoading, showMenu, setShowMenu } = p;
   // Sort: unseen first, seen last
-  const visibleResults = search.results
-    .filter((a) => !search.hiddenIds.includes(a.id))
-    .sort((a, b) => {
-      const aSeen = (search.feedback[a.id] || []).includes('seen' as any) ? 1 : 0;
-      const bSeen = (search.feedback[b.id] || []).includes('seen' as any) ? 1 : 0;
+  const visibleResults = useMemo(() => {
+    const base = search.results.filter((a) => !search.hiddenIds.includes(a.id));
+    const seenIds = new Set(
+      Object.entries(search.feedback)
+        .filter(([, tags]) => tags.includes("seen" as any))
+        .map(([id]) => id)
+    );
+    return [...base].sort((a, b) => {
+      const aSeen = seenIds.has(a.id) ? 1 : 0;
+      const bSeen = seenIds.has(b.id) ? 1 : 0;
       return aSeen - bSeen;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.results, search.hiddenIds]);
     });
 
   return (
