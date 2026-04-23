@@ -1,9 +1,11 @@
-import { SavedSearch, UserSettings, DEFAULT_SETTINGS, ChatMessage, ScoredApartment, FeedbackTag, FeedbackMap, StructuredFilters } from "./types";
+import { SavedSearch, UserSettings, DEFAULT_SETTINGS, ChatMessage, ScoredApartment, FeedbackTag, FeedbackMap, StructuredFilters, AgentSettings, DEFAULT_AGENT_SETTINGS, GlobalHiddenEntry } from "./types";
 
 const KEYS = {
   searches: "apt_searches_v2",
   activeSearchId: "apt_active_search_v2",
   settings: "apt_settings_v2",
+  agentSettings: "apt_agent_settings_v2",
+  globalHidden: "apt_global_hidden_v2",
   migrated: "apt_migrated_v1_to_v2",
 };
 
@@ -193,4 +195,50 @@ export function migrateV1IfNeeded(): SavedSearch | null {
   upsertSearch(migrated);
   safeSet(KEYS.migrated, true);
   return migrated;
+}
+
+// ─── Global hidden list ────────────────────────────────────────
+export function getGlobalHidden(): GlobalHiddenEntry[] {
+  return safeGet<GlobalHiddenEntry[]>(KEYS.globalHidden, []);
+}
+
+export function addToGlobalHidden(apt: { id: string; title: string; url: string | null }) {
+  const list = getGlobalHidden();
+  if (list.find((e) => e.id === apt.id)) return; // already hidden
+  list.unshift({ id: apt.id, title: apt.title, url: apt.url, hiddenAt: Date.now() });
+  safeSet(KEYS.globalHidden, list.slice(0, 500)); // cap at 500
+}
+
+export function removeFromGlobalHidden(id: string) {
+  const list = getGlobalHidden().filter((e) => e.id !== id);
+  safeSet(KEYS.globalHidden, list);
+}
+
+export function isGloballyHidden(id: string): boolean {
+  return getGlobalHidden().some((e) => e.id === id);
+}
+
+export function getGlobalHiddenIds(): Set<string> {
+  return new Set(getGlobalHidden().map((e) => e.id));
+}
+
+// ─── Agent (Gemini) settings ───────────────────────────────────
+export function getAgentSettings(): AgentSettings {
+  return safeGet<AgentSettings>(KEYS.agentSettings, DEFAULT_AGENT_SETTINGS);
+}
+
+export function saveAgentSettings(s: AgentSettings) {
+  safeSet(KEYS.agentSettings, { ...s, updatedAt: Date.now() });
+}
+
+export function updateLearnedInsights(newInsights: string) {
+  if (!newInsights) return;
+  const cur = getAgentSettings();
+  // Merge: keep last 800 chars of old + new insights
+  const merged = cur.learnedInsights
+    ? `${cur.learnedInsights.slice(-400)}
+
+עדכון אחרון: ${newInsights}`
+    : newInsights;
+  saveAgentSettings({ ...cur, learnedInsights: merged.slice(-800) });
 }
