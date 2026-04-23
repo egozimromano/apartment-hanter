@@ -24,7 +24,9 @@ export async function scoreApartments(
   apartments: RawApartment[],
   parsedQuery: ParsedQuery,
   feedbackSummary: string,
-  previousInsights: string
+  previousInsights: string,
+  globalInstructions?: string,
+  globalLearnedInsights?: string
 ): Promise<{ scored: ScoredApartment[]; insights: string }> {
   if (apartments.length === 0) return { scored: [], insights: "" };
 
@@ -40,7 +42,8 @@ export async function scoreApartments(
     title: a.title,
   }));
 
-  const prompt = `תיאור חופשי של המשתמש:
+  const prompt = `${globalInstructions ? `הוראות קבועות מהמשתמש (חובה לפעול לפיהן):\n${globalInstructions}\n` : ""}${globalLearnedInsights ? `מה למדנו על המשתמש מכל החיפושים:\n${globalLearnedInsights}\n` : ""}
+תיאור חופשי של המשתמש לחיפוש זה:
 "${parsedQuery.raw_text}"
 
 פילטרים מובנים שחולצו:
@@ -53,8 +56,8 @@ ${JSON.stringify({
   deal_breakers: parsedQuery.deal_breakers,
 })}
 
-${feedbackSummary ? `פידבק על דירות קודמות: ${feedbackSummary}` : ""}
-${previousInsights ? `תובנות קודמות: ${previousInsights}` : ""}
+${feedbackSummary ? `פידבק על דירות בחיפוש זה: ${feedbackSummary}` : ""}
+${previousInsights ? `תובנות מחיפוש זה: ${previousInsights}` : ""}
 
 דירות לדירוג:
 ${JSON.stringify(compactApts, null, 2)}
