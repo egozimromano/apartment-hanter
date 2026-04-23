@@ -8,6 +8,7 @@ interface Props {
   onDelete: (id: string) => void;
   onNew: () => void;
   onSettings: () => void;
+  onAgentSettings: () => void;
 }
 
 function timeAgo(ts: number | null): string {
@@ -22,7 +23,7 @@ function timeAgo(ts: number | null): string {
   return `לפני ${d} ימים`;
 }
 
-export default function SearchesList({ searches, onOpen, onEdit, onDelete, onNew, onSettings }: Props) {
+export default function SearchesList({ searches, onOpen, onEdit, onDelete, onNew, onSettings, onAgentSettings }: Props) {
   return (
     <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
       <div className="safe-top" style={{
@@ -37,11 +38,18 @@ export default function SearchesList({ searches, onOpen, onEdit, onDelete, onNew
               <div style={{ fontSize: "var(--fs-sm)", color: "var(--text-faint)" }}>{searches.length} חיפושים שמורים</div>
             </div>
           </div>
-          <button onClick={onSettings}
-            style={{ padding: "10px 12px", borderRadius: 20, border: "1px solid var(--border-2)", background: "transparent", color: "var(--text-muted)", fontSize: "16px", cursor: "pointer" }}
-            aria-label="הגדרות">
-            ⚙
-          </button>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button onClick={onAgentSettings}
+              style={{ padding: "10px 12px", borderRadius: 20, border: "1px solid var(--border-2)", background: "transparent", color: "var(--text-muted)", fontSize: "16px", cursor: "pointer" }}
+              aria-label="הגדרות סוכן">
+              🤖
+            </button>
+            <button onClick={onSettings}
+              style={{ padding: "10px 12px", borderRadius: 20, border: "1px solid var(--border-2)", background: "transparent", color: "var(--text-muted)", fontSize: "16px", cursor: "pointer" }}
+              aria-label="הגדרות">
+              ⚙
+            </button>
+          </div>
         </div>
       </div>
 
